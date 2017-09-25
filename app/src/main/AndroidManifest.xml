@@ -26,7 +26,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".LocationPermissionActivity" />
-        <activity android:name=".SetupDeviceActivity"></activity>
+        <activity
+            android:name=".SetupDeviceActivity"
+            android:label="@string/title_activity_setup_device"></activity>
+        <activity android:name=".EnableDeviceActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,7 @@
 package com.dalmirdasilva.androidmessagingprotocol.device;
 
+import android.bluetooth.BluetoothProfile;
+
 public enum DeviceState {
 
     STATE_INITIAL(0, "Device not connected"),

@@ -18,10 +18,10 @@ public class DeviceManager implements DeviceListener {
         this.deviceListener = deviceListener;
     }
 
-    public void setupDevice(String macAddress) {
+    public void setupDevice(BluetoothDevice device) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null) {
-            BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(macAddress);
+            BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
             deviceAdapter = new DeviceAdapter(deviceListener, remoteDevice);
             deviceAdapter.connect();
         }

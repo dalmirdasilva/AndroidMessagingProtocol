@@ -1,4 +1,18 @@
 <resources>
-    <string name="app_name">AndroidMessagingProtocol</string>
+    <string name="app_name">Android Messaging Protocol</string>
     <string name="title_activity_main">AndroidMessagingProtocol MainActivity</string>
+    <string name="title_activity_setup_device">Setup Device</string>
+    <string name="device_list_title">Bluetooth Low Energy Devices</string>
+    <string name="device_view_title">View Device</string>
+    <string name="device_name">Name: </string>
+    <string name="device_address">MAC: </string>
+    <string name="device_rssi">RSSI: </string>
+    <string name="device_list_services_button">List device services</string>
+    <string name="enabling_device">Enabling device...</string>
+    <string name="service_uuid">Service UUID: </string>
+    <string name="characteristic_uuid">Characteristic UUID: </string>
+    <string name="characteristic_data_length">Characteristic length: </string>
+    <string name="characteristic_data">Characteristic data: </string>
+    <string name="characteristic_how_namy_descriptors">How many descriptors: </string>
+    <string name="descriptor_uuid">Descriptor UUID: </string>
 </resources>

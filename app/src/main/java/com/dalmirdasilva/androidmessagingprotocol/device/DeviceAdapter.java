@@ -1,5 +1,6 @@
 package com.dalmirdasilva.androidmessagingprotocol.device;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class DeviceAdapter {
 
@@ -97,18 +99,18 @@ public class DeviceAdapter {
         public ConnectionThread() {
             BluetoothSocket socket = null;
             Log.d(TAG, device.fetchUuidsWithSdp() ? "TRUE" : "FALSE");
-            if (device.fetchUuidsWithSdp()) {
-                ParcelUuid[] uuids = device.getUuids();
-                Log.d(TAG, uuids!=null ? uuids.toString():"NULL");
-                if (uuids != null && uuids.length > 0) {
-                    Log.d(TAG, "Trying...");
-                    try {
-                        socket = device.createInsecureRfcommSocketToServiceRecord(uuids[0].getUuid());
-                        Log.d(TAG, socket.toString());
-                    } catch (IOException e) {
-                        Log.e(TAG, "Failed while trying to create the socket.", e);
-                    }
-                }
+            ParcelUuid[] uuids = device.getUuids();
+
+            Log.d(TAG, uuids != null ? uuids.toString() : "NULL");
+//                if (uuids != null && uuids.length > 0) {
+            Log.d(TAG, "Trying...");
+            try {
+                UUID uuid = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
+                Log.d(TAG, "UUID: " + uuid.toString());
+                socket = device.createRfcommSocketToServiceRecord(uuid);
+                Log.d(TAG, socket.toString());
+            } catch (IOException e) {
+                Log.e(TAG, "Failed while trying to create the socket.", e);
             }
             this.socket = socket;
         }
