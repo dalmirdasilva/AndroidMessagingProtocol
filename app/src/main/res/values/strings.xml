@@ -2,7 +2,7 @@
     <string name="app_name">Android Messaging Protocol</string>
     <string name="title_activity_main">AndroidMessagingProtocol MainActivity</string>
     <string name="title_activity_setup_device">Setup Device</string>
-    <string name="device_list_title">Bluetooth Low Energy Devices</string>
+    <string name="device_list_title">Bluetooth Devices</string>
     <string name="device_view_title">View Device</string>
     <string name="device_name">Name: </string>
     <string name="device_address">MAC: </string>

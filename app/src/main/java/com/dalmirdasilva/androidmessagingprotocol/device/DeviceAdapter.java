@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public class DeviceAdapter {
 
-    private static final String TAG = "DeviceAdapter";
+    private static final String TAG = "DeviceListAdapter";
 
     public static final int MESSAGE_STATE_CHANGE = 0;
     public static final int MESSAGE_RECEIVE = 1;
@@ -100,14 +100,8 @@ public class DeviceAdapter {
             BluetoothSocket socket = null;
             Log.d(TAG, device.fetchUuidsWithSdp() ? "TRUE" : "FALSE");
             ParcelUuid[] uuids = device.getUuids();
-
-            Log.d(TAG, uuids != null ? uuids.toString() : "NULL");
-//                if (uuids != null && uuids.length > 0) {
-            Log.d(TAG, "Trying...");
             try {
-                UUID uuid = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
-                Log.d(TAG, "UUID: " + uuid.toString());
-                socket = device.createRfcommSocketToServiceRecord(uuid);
+                socket = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
                 Log.d(TAG, socket.toString());
             } catch (IOException e) {
                 Log.e(TAG, "Failed while trying to create the socket.", e);

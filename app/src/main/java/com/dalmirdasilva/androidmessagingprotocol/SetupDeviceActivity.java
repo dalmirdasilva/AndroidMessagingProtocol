@@ -2,8 +2,10 @@ package com.dalmirdasilva.androidmessagingprotocol;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,8 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.dalmirdasilva.androidmessagingprotocol.adapters.DeviceAdapter;
-import com.dalmirdasilva.androidmessagingprotocol.bluetooth.LowEnergyScanner;
+import com.dalmirdasilva.androidmessagingprotocol.adapters.DeviceListAdapter;
 
 import java.util.ArrayList;
 
@@ -22,9 +23,7 @@ public class SetupDeviceActivity extends AppCompatActivity {
     private static final String TAG = "SetupDeviceActivity";
     public static final String DEVICE_ADDRESS_RESULT = "DEVICE_ADDRESS_RESULT";
 
-    private LowEnergyScanner lowEnergyScanner;
-    private LowEnergyScanner.ScanListener scanListener;
-    private DeviceAdapter deviceAdapter;
+    private DeviceListAdapter deviceListAdapter;
     private ListView devicesListView;
 
     @Override
@@ -48,28 +47,35 @@ public class SetupDeviceActivity extends AppCompatActivity {
     }
 
     private void initialize() {
-        lowEnergyScanner = new LowEnergyScanner(BluetoothAdapter.getDefaultAdapter());
-        scanListener = new LowEnergyScanner.ScanListener() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        registerReceiver(new BroadcastReceiver() {
 
             @Override
-            public void onDeviceFound(BluetoothDevice device) {
-                Log.d(TAG, "Low energy device found: address: " + device.getAddress() + ", name: " + device.getName());
-                handleFoundDevice(device);
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+
+                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+
+                } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    handleFoundDevice(device);
+                }
             }
 
-            @Override
-            public void onDiscoveryFinished() {
-                Log.d(TAG, "Low energy discovery finished.");
-            }
-        };
-        deviceAdapter = new DeviceAdapter(this, new ArrayList<BluetoothDevice>());
+        }, filter);
+        BluetoothAdapter.getDefaultAdapter().startDiscovery();
+        deviceListAdapter = new DeviceListAdapter(this, new ArrayList<BluetoothDevice>());
         devicesListView = (ListView) findViewById(R.id.device_list);
-        devicesListView.setAdapter(deviceAdapter);
+        devicesListView.setAdapter(deviceListAdapter);
         devicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BluetoothDevice device = deviceAdapter.getItem(position);
+                BluetoothDevice device = deviceListAdapter.getItem(position);
                 stopScanDevice();
                 sendResult(device);
             }
@@ -82,20 +88,14 @@ public class SetupDeviceActivity extends AppCompatActivity {
     }
 
     private void handleFoundDevice(BluetoothDevice device) {
-        deviceAdapter.add(device);
+        Log.d(TAG, "Device found: address: " + device.getAddress() + ", name: " + device.getName());
+        deviceListAdapter.add(device);
     }
 
 
     private void scanDevices() {
         Log.d(TAG, "Starting scanning bluetooth devices.");
-        AsyncTask.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                lowEnergyScanner.startScan(scanListener);
-                Log.d(TAG, "Scanner start async task died.");
-            }
-        });
+        BluetoothAdapter.getDefaultAdapter().startDiscovery();
     }
 
     private void onEnableDeviceRequestResult(int resultCode, Intent data) {
@@ -112,14 +112,7 @@ public class SetupDeviceActivity extends AppCompatActivity {
 
     private void stopScanDevice() {
         Log.d(TAG, "Stop scanning bluetooth devices.");
-        AsyncTask.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                lowEnergyScanner.stopScan();
-                Log.d(TAG, "Scanner stop async task died.");
-            }
-        });
+        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
     }
 
     void sendResult(BluetoothDevice device) {
