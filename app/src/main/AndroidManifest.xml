@@ -28,8 +28,11 @@
         <activity android:name=".LocationPermissionActivity" />
         <activity
             android:name=".SetupDeviceActivity"
-            android:label="@string/title_activity_setup_device"></activity>
-        <activity android:name=".EnableDeviceActivity"></activity>
+            android:label="@string/title_activity_setup_device" />
+        <activity android:name=".EnableDeviceActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>

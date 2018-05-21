@@ -7,6 +7,8 @@ import android.util.Log;
 import com.dalmirdasilva.androidmessagingprotocol.device.message.Message;
 import com.dalmirdasilva.androidmessagingprotocol.device.message.MessageFactory;
 
+import java.util.Arrays;
+
 public class DeviceManager implements DeviceListener {
 
     private static final String TAG = "DeviceManager";
@@ -21,15 +23,14 @@ public class DeviceManager implements DeviceListener {
     public void setupDevice(BluetoothDevice device) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null) {
-            BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
-            deviceAdapter = new DeviceAdapter(deviceListener, remoteDevice);
+            deviceAdapter = new DeviceAdapter(this, device);
             deviceAdapter.connect();
         }
     }
 
     public void sendMessage(Message message) {
         byte[] array = message.toArray();
-        Log.d(TAG, "Sending message: " + message.toString());
+        Log.d(TAG, "Sending message: " + message.toString() + ", array: " + Arrays.toString(array));
         if (deviceAdapter != null && deviceAdapter.isConnected()) {
             deviceAdapter.write(array);
         }
@@ -45,6 +46,7 @@ public class DeviceManager implements DeviceListener {
     public void onMessageReceived(Message message) {
         switch (message.getType()) {
             case Message.TYPE_CONNECT:
+                Log.d(TAG, "case Message.TYPE_CONNECT: Sending message.");
                 sendMessage(MessageFactory.newConnectMessage());
                 break;
             case Message.TYPE_EPOCH:

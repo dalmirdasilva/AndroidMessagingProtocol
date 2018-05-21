@@ -1,8 +1,14 @@
 package com.dalmirdasilva.androidmessagingprotocol.device.message;
 
+import android.text.TextUtils;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
+ * This class represents a message.
+ *
  * Message raw components:
  * [
  * START_OF_MESSAGE_MARK {1}
@@ -15,6 +21,29 @@ import java.util.Arrays;
  * ]
  */
 public abstract class Message {
+
+    public static List<String> typeNames;
+    public static List<String> flagNames;
+
+    static {
+        typeNames = new ArrayList<>(Arrays.asList(
+                "TYPE_DATA",
+                "TYPE_ACK",
+                "TYPE_CONNECT",
+                "TYPE_SYNC",
+                "TYPE_EPOCH",
+                "TYPE_SETTINGS",
+                "TYPE_PING",
+                "TYPE_PONG"
+        ));
+    }
+
+    static {
+        flagNames = new ArrayList<>(Arrays.asList(
+                "REQUIRED_ACK",
+                "IS_LAST_MESSAGE"
+        ));
+    }
 
     // Message types
     public static final byte TYPE_DATA = 0x00;
@@ -39,14 +68,13 @@ public abstract class Message {
 
     // Sizes
     public static final int STATIC_PART_SIZE = 0x06;
+    public static final byte EPOCH_SIZE = 0x04;
+    public static final byte FLAG_SIZE = 0x01;
+    public static final byte SAMPLE_SIZE = 0x04;
 
     // Flag bits
     public static final byte REQUIRED_ACK = 0x01;
     public static final byte IS_LAST_MESSAGE = 0x02;
-
-    public static final byte EPOCH_SIZE = 0x04;
-    public static final byte FLAG_SIZE = 0x01;
-    public static final byte SAMPLE_SIZE = 0x04;
 
     protected static byte NEXT_ID = 0x00;
 
@@ -125,9 +153,23 @@ public abstract class Message {
     public String toString() {
         return "Message{" +
                 "id=" + id +
-                ", type=" + type +
-                ", flags=" + flags +
+                ", type=" + getTypeNames() +
+                ", flags=" + getFlagNames() + " (" + String.format("0x%02x", flags) + ")" +
                 ", payload=" + Arrays.toString(payload) +
                 '}';
+    }
+
+    private String getTypeNames() {
+        return typeNames.get(type);
+    }
+
+    private String getFlagNames() {
+        List<String> activeFlags = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            if (((1 << i) & flags) != 0) {
+                activeFlags.add(flagNames.get(i));
+            }
+        }
+        return TextUtils.join("|", activeFlags);
     }
 }

@@ -98,9 +98,10 @@ public class DeviceAdapter {
 
         public ConnectionThread() {
             BluetoothSocket socket = null;
-            Log.d(TAG, device.fetchUuidsWithSdp() ? "TRUE" : "FALSE");
             ParcelUuid[] uuids = device.getUuids();
+            Log.d(TAG, uuids.toString());
             try {
+                Log.d(TAG, uuids[0].getUuid().toString());
                 socket = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
                 Log.d(TAG, socket.toString());
             } catch (IOException e) {

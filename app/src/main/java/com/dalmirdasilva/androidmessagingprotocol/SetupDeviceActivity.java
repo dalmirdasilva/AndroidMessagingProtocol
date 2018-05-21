@@ -25,6 +25,7 @@ public class SetupDeviceActivity extends AppCompatActivity {
 
     private DeviceListAdapter deviceListAdapter;
     private ListView devicesListView;
+    private BroadcastReceiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class SetupDeviceActivity extends AppCompatActivity {
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        registerReceiver(new BroadcastReceiver() {
+        receiver = new BroadcastReceiver() {
 
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -65,8 +66,8 @@ public class SetupDeviceActivity extends AppCompatActivity {
                     handleFoundDevice(device);
                 }
             }
-
-        }, filter);
+        };
+        registerReceiver(receiver, filter);
         BluetoothAdapter.getDefaultAdapter().startDiscovery();
         deviceListAdapter = new DeviceListAdapter(this, new ArrayList<BluetoothDevice>());
         devicesListView = (ListView) findViewById(R.id.device_list);
@@ -80,6 +81,14 @@ public class SetupDeviceActivity extends AppCompatActivity {
                 sendResult(device);
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+        }
+        super.onStop();
     }
 
     void enableDevice() {

@@ -8,6 +8,12 @@ import com.dalmirdasilva.androidmessagingprotocol.device.message.MessageParser;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
+/**
+ * Responses?
+ *
+ *
+ *
+ */
 public class MessageHandler extends android.os.Handler {
 
     private static final String TAG = "MessageHandler";
@@ -20,18 +26,29 @@ public class MessageHandler extends android.os.Handler {
         this.parser = new MessageParser();
     }
 
+    /**
+     * Receives a byte array from
+     * @param buffer
+     */
     private void processIncomingBytes(byte[] buffer) {
+        Log.d(TAG, "Process incoming bytes: " + Util.formatHex(buffer));
         int from = 0;
-        int to = buffer.length - 1;
-        while(from < to) {
+        int to = buffer.length;
+        while (from < to) {
             byte[] copy = Arrays.copyOfRange(buffer, from, to);
+            Log.d(TAG, "copy: " + Util.formatHex(copy));
             int parsed = parser.parse(copy);
+            Log.d(TAG, "parsed: " + parsed);
             if (parser.wasMessageDecoded()) {
+                Log.d(TAG, "wasMessageDecoded");
                 Message decodedMessage = parser.collectDecodedMessage();
                 deviceListener.get().onMessageReceived(decodedMessage);
+            } else if (parsed == 0) {
+                Log.d(TAG, "parsed == 0");
+                from++;
             } else if (parsed != copy.length) {
                 Log.e(TAG, "Decoded bytes shorter than buffer length and none message decoded. It should not happen!");
-                parser.reset();
+                parser.resetState();
             }
             from += parsed;
         }

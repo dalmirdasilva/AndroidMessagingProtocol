@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.dalmirdasilva.androidmessagingprotocol.device.DeviceAdapter;
 import com.dalmirdasilva.androidmessagingprotocol.device.DeviceListener;
+import com.dalmirdasilva.androidmessagingprotocol.device.DeviceManager;
 import com.dalmirdasilva.androidmessagingprotocol.device.DeviceState;
+import com.dalmirdasilva.androidmessagingprotocol.device.message.AckMessage;
 import com.dalmirdasilva.androidmessagingprotocol.device.message.Message;
 
 public class MainActivity extends AppCompatActivity implements DeviceListener {
@@ -19,9 +23,9 @@ public class MainActivity extends AppCompatActivity implements DeviceListener {
 
     private TextView deviceNameTextView;
     private TextView deviceAddressTextView;
-    private TextView deviceRssiTextView;
+    private Button sendMessageButton;
 
-    private DeviceAdapter adatapter;
+    private DeviceManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +38,15 @@ public class MainActivity extends AppCompatActivity implements DeviceListener {
     private void initialize() {
         deviceNameTextView = (TextView) findViewById(R.id.view_device_name);
         deviceAddressTextView = (TextView) findViewById(R.id.view_device_address);
-        deviceRssiTextView = (TextView) findViewById(R.id.view_device_rssi);
+        sendMessageButton = (Button) findViewById(R.id.send_message);
+        sendMessageButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Message message = new AckMessage();
+                manager.sendMessage(message);
+            }
+        });
     }
 
     private void selectDevice() {
@@ -61,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements DeviceListener {
             Log.d(TAG, "Connecting to device: " + device.getAddress());
             deviceNameTextView.setText(device.getName());
             deviceAddressTextView.setText(device.getAddress());
-            adatapter = new DeviceAdapter(this, device);
-            adatapter.connect();
+            manager = new DeviceManager(this);
+            manager.setupDevice(device);
         }
     }
 

@@ -1,9 +1,15 @@
 package com.dalmirdasilva.androidmessagingprotocol.device.message;
 
 import android.util.Log;
+
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
+/**
+ * Responsible to parse incoming bytes and builds a @See{Message}
+ */
 public class MessageParser {
 
     private static final String TAG = "MessageParser";
@@ -22,12 +28,14 @@ public class MessageParser {
     private List<Byte> raw;
     private State state;
     private int payloadLength;
+    private Queue<Message> messageQueue;
 
     public MessageParser() {
-        reset();
+        this.messageQueue = new ArrayDeque<>();
+        resetState();
     }
 
-    public void reset() {
+    public void resetState() {
         state = State.INITIAL;
     }
 
@@ -35,6 +43,18 @@ public class MessageParser {
         return state;
     }
 
+    /**
+     * Parses a array of bytes.
+     *
+     * It return the number of parsed bytes. After a message is decoded, it stores the message
+     * in the message queue and keeps parsing towards the next message.
+     *
+     * If the number of parsed bytes is less than the received array, it means an error occurred
+     * while parsing the array of bytes.
+     *
+     * @param bytes
+     * @return
+     */
     public int parse(byte[] bytes) {
         int i;
         for (i = 0; i < bytes.length; i++) {
@@ -45,7 +65,14 @@ public class MessageParser {
         return i;
     }
 
+    /**
+     * The state machine will stop and @See{resetState} needs to be called to reset the machine.
+     *
+     * @param b
+     * @return
+     */
     private boolean parse(byte b) {
+        Log.d(TAG, "Parsing: 0x" + Integer.toHexString(b & 0xff));
         boolean ingested = true;
         switch (state) {
             case INITIAL:
@@ -69,6 +96,8 @@ public class MessageParser {
             case FLAGS_PARSED:
                 state = State.PAYLOAD_LENGTH_PARSED;
                 payloadLength = b;
+
+                // If the message has no payload, jump straight to PAYLOAD_PARSED state.
                 if (payloadLength <= 0) {
                     state = State.PAYLOAD_PARSED;
                 }
@@ -81,6 +110,7 @@ public class MessageParser {
             case PAYLOAD_PARSED:
                 if (b == Message.END_MESSAGE_MARK) {
                     state = State.END_OF_MESSAGE_MARK_PARSED;
+                    enqueueDecodedMessage();
                 } else {
                     Log.d(TAG, "State is PAYLOAD_PARSED but END_MESSAGE_MARK mismatches.");
                     ingested = false;
@@ -97,21 +127,38 @@ public class MessageParser {
         return ingested;
     }
 
+    private void enqueueDecodedMessage() {
+        if (wasMessageDecoded()) {
+            Message message = instantiateDecodedMessage();
+            if (message != null) {
+                messageQueue.offer(message);
+            }
+            resetState();
+        }
+    }
+
+    private Message instantiateDecodedMessage() {
+        Message message = null;
+        if (wasMessageDecoded()) {
+            message = MessageFactory.newMessageFromType(raw.get(Message.TYPE_POS));
+            message.setId(raw.get(Message.ID_POS));
+            message.setFlags(raw.get(Message.FLAGS_POS));
+            List<Byte> payload = raw.subList(Message.PAYLOAD_POS, Message.PAYLOAD_POS + payloadLength);
+            Byte[] bytes = payload.toArray(new Byte[payloadLength]);
+            message.setPayload(bytes);
+        }
+        return message;
+    }
+
     public boolean wasMessageDecoded() {
         return state == State.END_OF_MESSAGE_MARK_PARSED;
     }
 
     public Message collectDecodedMessage() {
-        if (!wasMessageDecoded()) {
-            return null;
+        Message message = null;
+        if (messageQueue.size() > 0) {
+            message = messageQueue.poll();
         }
-        Message message = MessageFactory.newMessageFromType(raw.get(Message.TYPE_POS));
-        message.setId(raw.get(Message.ID_POS));
-        message.setFlags(raw.get(Message.FLAGS_POS));
-        List<Byte> payload = raw.subList(Message.PAYLOAD_POS, Message.PAYLOAD_POS + payloadLength);
-        Byte[] bytes = payload.toArray(new Byte[payloadLength]);
-        message.setPayload(bytes);
-        reset();
         return message;
     }
 }
