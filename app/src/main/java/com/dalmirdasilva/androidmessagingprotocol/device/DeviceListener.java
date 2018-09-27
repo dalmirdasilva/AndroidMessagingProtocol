@@ -6,5 +6,5 @@ public interface DeviceListener {
 
     void onMessageReceived(Message message);
 
-    void onDeviceStateChange(DeviceState state);
+    void onDeviceConnStateChange(DeviceConnState state);
 }

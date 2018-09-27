@@ -59,22 +59,17 @@
         android:max="10"
         android:progress="3" />
 
-    <QuickContactBadge
-        android:id="@+id/quickContactBadge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/cast_expanded_controller_seekbar_thumb" />
-
     <ProgressBar
         style="?android:attr/progressBarStyle"
-        android:layout_width="match_parent"
+        android:layout_width="61dp"
         android:layout_height="wrap_content" />
 
     <ToggleButton
-        android:id="@+id/toggleButton"
+        android:id="@+id/toggle_button"
         android:layout_width="67dp"
         android:layout_height="wrap_content"
-        android:text="ToggleButton" />
+        android:textOn="Stop"
+        android:textOff="Start" />
 
     <EditText
         android:layout_width="match_parent"

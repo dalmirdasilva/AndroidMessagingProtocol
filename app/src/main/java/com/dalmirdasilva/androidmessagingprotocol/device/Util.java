@@ -7,17 +7,17 @@ import java.util.Formatter;
  */
 public class Util {
 
-    /**
-     * Parses a array of bytes and return if hexadecimal representation as a string.
-     *
-     * @param array
-     * @return
-     */
-    public static String formatHex(byte[] array) {
-        Formatter formatter = new Formatter();
-        for (byte b : array) {
-            formatter.format("%02x", b);
-        }
-        return formatter.toString();
+  /**
+   * Parses a array of bytes and return if hexadecimal representation as a string.
+   *
+   * @param array
+   * @return
+   */
+  public static String formatHex(byte[] array) {
+    Formatter formatter = new Formatter();
+    for (byte b : array) {
+      formatter.format("%02x", b);
     }
+    return formatter.toString();
+  }
 }

@@ -61,7 +61,7 @@ public class DeviceManager implements DeviceListener {
     }
 
     @Override
-    public void onDeviceStateChange(DeviceState state) {
-        deviceListener.onDeviceStateChange(state);
+    public void onDeviceConnStateChange(DeviceConnState state) {
+        deviceListener.onDeviceConnStateChange(state);
     }
 }
